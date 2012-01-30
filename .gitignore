@@ -1,0 +1,6 @@
+*.vapi
+*.h
+*.so
+gewitter
+*.swp
+core.*

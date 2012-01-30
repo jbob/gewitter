@@ -1,6 +1,5 @@
 using Gtk;
 using Gee;
-using twitter;
 using Json;
 
 public class Gewitter {
@@ -16,7 +15,8 @@ public class Gewitter {
 	private Gtk.ListStore List;
 	private string ConfigFile = GLib.Environment.get_user_config_dir()+"/gewitterrc";
 	private Map<string, string> config;
-	private OauthTwitter ot = new OauthTwitter();
+	private Twitter twitter = new Twitter();
+	//private OauthTwitter ot = new OauthTwitter();
 
 
 	public Gewitter() {
@@ -52,10 +52,10 @@ public class Gewitter {
 	public void run(string[] args) {
 		if(!(config.has_key("consumer_key") &&
 				 config.has_key("consumer_secret"))) {
-			ot.getAccessToken_A();
+			twitter.getAccessToken_A();
 		  dialog.show();
 		} else {
-			ot.init(config["consumer_key"], config["consumer_secret"]);
+			twitter.init(config["consumer_key"], config["consumer_secret"]);
 		}
 		window.show_all();
 		Gtk.main();
@@ -113,7 +113,7 @@ public class Gewitter {
 		// TODO: Implement
 		dialog.hide();
 		string pin = PinEntry.get_text();
-		Map<string, string> tokens = ot.getAccessToken_B(pin);
+		Map<string, string> tokens = twitter.getAccessToken_B(pin);
 		foreach(var token in tokens.entries) {
 			config.set(token.key, token.value);
 		}
@@ -121,7 +121,7 @@ public class Gewitter {
 	}
 
 	private void HomeClicked() {
-		var json_response = twitter.home_timeline(ot);
+		var json_response = twitter.home_timeline();
 		var root_node = json_response.get_root();
 		Gtk.TreeIter iter;
 		foreach(var tweetnode in root_node.get_array().get_elements()) {

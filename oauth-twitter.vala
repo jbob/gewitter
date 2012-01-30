@@ -53,7 +53,8 @@ public class OauthTwitter {
 		}
 
 		try {
-			Process.spawn_command_line_async("gnome-open "+url);
+			print(url+"\n");
+			Process.spawn_command_line_async("xdg-open '"+url+"'");
 		} catch(SpawnError e) {
 			print("Error: "+e.message);
 		}

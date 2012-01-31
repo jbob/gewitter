@@ -93,7 +93,7 @@ namespace OAuth
     {
       if (oauth_token != this.oauth_token) throw new OAuth.Error.INVALID_ARGUMENT("oauth_token");
        
-      HashMultiMap<string, string> args = new HashMultiMap<string, string>();
+      MultiMap<string, string> args = new HashMultiMap<string, string>();
       args.set("oauth_verifier", oauth_verifier);
       
       return authenticate(http_method, access_endpoint_uri, args);
@@ -336,110 +336,6 @@ namespace OAuth
       else ret += separator + f(str);
     }
     return ret;
-  }
-  
-  //Unit-tests in a sense.
-  public static void sanity_check()
-  {
-  
-    //From Wikipedia's page on HMAC.
-  
-    {
-      stdout.printf("HMAC1\n");
-      uchar[] out_ary = HMAC.hmac_sha1((uchar[])"key".to_utf8(), (uchar[])"The quick brown fox jumps over the lazy dog".to_utf8());
-      string correct = "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9";
-      string out_str = "";
-      foreach (uchar c in out_ary) out_str += "%02x".printf(c);
-      assert(correct == out_str);
-    }
-    
-    {
-      stdout.printf("HMAC2\n");
-      uchar[] out_ary = HMAC.hmac_sha1((uchar[])"".to_utf8(), (uchar[])"".to_utf8());
-      string correct = "fbdb1d1b18aa6c08324b7d64b71fb76370690e1d";
-      string out_str = "";
-      foreach (uchar c in out_ary) out_str += "%02x".printf(c);
-      assert(correct == out_str);
-    }
-    
-    //Random selection from http://wiki.oauth.net/w/page/12238556/TestCases
-    
-    {
-      stdout.printf("HMAC3\n");
-      HMAC_SHA1 hmac = new HMAC_SHA1("kd94hf93k423kf44");
-      string out_str = hmac.sign("pfkkdhi9sl3r4s00", "GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal");
-      string correct = "tR3+Ty81lMeYAr/Fid0kMTYa/WM=";
-      assert(correct == out_str);
-    }
-    
-    {
-      stdout.printf("HMAC4\n");
-      HMAC_SHA1 hmac = new HMAC_SHA1("cs");
-      string out_str = hmac.sign(null, "bs");
-      string correct = "egQqG5AJep5sJ7anhXju1unge2I=";
-      assert(correct == out_str);
-    }
-    
-    {
-      stdout.printf("penc1\n");
-      string out_str = percent_encode(((unichar)0x3001).to_string());
-      string correct = "%E3%80%81";
-      assert(correct == out_str);
-    }
-    
-    {
-      stdout.printf("penc2\n");
-      string out_str = percent_encode(((unichar)0x20).to_string() + ((unichar)0x7F).to_string() + ((unichar)0x80).to_string() + "&=*-+._~%");
-      string correct = "%20%7F%C2%80%26%3D%2A-%2B._~%25";
-      assert(correct == out_str);
-    }
-    
-    {
-      stdout.printf("pnorm\n");
-      HashMultiMap<string, string> map = new HashMultiMap<string, string>();
-      map.set("name", "");
-      map.set("a", "b");
-      map.set("c", "d");
-      map.set("a", "x!y");
-      map.set("a", "x y");
-      map.set("x!y", "a");
-      string out_str = parameters_normalization(map);
-      string correct = "a=b&a=x%20y&a=x%21y&c=d&name=&x%21y=a";
-      assert(correct == out_str);
-    }
-    
-    //A very lazy way to exercise the library. (Copy-paste URIs. If it doesn't give errors, you're aokay.)
-    //Maybe I should include a proper way to extract a query string instead of doing string::replaces.
-    
-    {
-      stdout.printf("Simple Test Server tests:\n");
-      Client client = new Client("", "key", new HMAC_SHA1("secret"));
-
-      string auth = client.request_token("GET", "http://term.ie/oauth/example/request_token.php")["authquery"];
-      stdout.printf("http://term.ie/oauth/example/request_token.php?%s\n", auth);
-      
-      try 
-      {
-        client.auth_token("%s", "requestkey", "requestsecret", "true");
-        
-        auth = client.access_token("GET", "http://term.ie/oauth/example/access_token.php", "requestkey", "requestverify")["authquery"];
-        stdout.printf("http://term.ie/oauth/example/access_token.php?%s\n", auth);
-        
-        client.set_token("accesskey", "accesssecret");
-        
-        HashMultiMap<string, string> args = new HashMultiMap<string, string>();
-        args.set("message", "Success!!!");
-        //args.set("message", "Two");
-        args.set("a", "z");
-        var auth_hash = client.authenticate("GET", "http://term.ie/oauth/example/echo_api.php", args);
-        auth = auth_hash["authquery"];
-        stdout.printf("http://term.ie/oauth/example/echo_api.php?%s&%s\n", auth, auth_hash["query"]);
-      } 
-      catch (OAuth.Error e) 
-      { 
-        assert(false); //Should never happen.
-      }
-    }
   }
 }
 

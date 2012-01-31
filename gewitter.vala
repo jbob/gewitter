@@ -121,7 +121,9 @@ public class Gewitter {
 	}
 
 	private void HomeClicked() {
-		var json_response = twitter.home_timeline();
+		MultiMap<string, string> parameters = new HashMultiMap<string, string>();
+		parameters.set("count", "100");
+		var json_response = twitter.home_timeline(parameters);
 		var root_node = json_response.get_root();
 		Gtk.TreeIter iter;
 		foreach(var tweetnode in root_node.get_array().get_elements()) {

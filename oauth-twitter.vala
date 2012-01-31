@@ -34,7 +34,7 @@ public class OauthTwitter {
 		message.request_headers.append("Authorization", request_auth);
 
 		session.send_message(message);
-		string[] parts = ((string)message.response_body.data).split("&");
+		string[] parts = ((string)message.response_body.flatten().data).split("&");
 		string token_secret = "";
 		foreach(string part in parts) {
 			string[] p = part.split("=");
@@ -96,10 +96,22 @@ public class OauthTwitter {
 		return ret;
 	}
 
-	public Soup.Message Auth(string method, string url) {
-		var message = new Soup.Message(method, url);
-		HashMultiMap<string, string> args = new HashMultiMap<string, string>();
-		var oauth_header = client.authenticate(method, url, args)["Authorization"];
+	public Soup.Message Auth(string method,
+													 string url,
+													 MultiMap<string, string>? parameters = null) {
+		string myurl = url;
+		if(parameters != null ) {
+			myurl += "?";
+			foreach(var key in parameters.get_keys()) {
+				foreach(var value in parameters.get(key)) {
+					myurl += key + "=" + value + "&";
+				}
+			}
+			myurl = myurl[0:myurl.length-1];
+		}
+		print(myurl+"\n");
+		var message = new Soup.Message(method, myurl);
+		var oauth_header = client.authenticate(method, url, parameters)["Authorization"];
 		message.request_headers.append("Authorization", oauth_header);
 		return message;
 	}

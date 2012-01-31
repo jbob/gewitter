@@ -1,7 +1,6 @@
 using Gee;
 using Soup;
 using Json;
-using OAuth;
 
 public class Twitter {
 

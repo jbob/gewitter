@@ -9,7 +9,7 @@ TVAPI = oauth.vapi oauth-twitter.vapi
 TLIB = --library=twitter
 TH = -H twitter.h
 TSRC = twitter.vala
-TX = -X -fPIC -X -shared -X oauth.so -X oauth-twitter.so -X -I. -X -Wl,-R.
+TX = -X -fPIC -X -shared -X oauth-twitter.so -X -I. -X -Wl,-R.
 TO = -o twitter.so
 
 OTPKG = --pkg gee-1.0 --pkg libsoup-2.4
@@ -17,7 +17,7 @@ OTVAPI = oauth.vapi
 OTLIB = --library=oauth-twitter
 OTH = -H oauth-twitter.h
 OTSRC = oauth-twitter.vala
-OTX = -X -fPIC -X -shared -X -I. -X -Wl,-R.
+OTX = -X -fPIC -X -shared -X oauth.so -X -I. -X -Wl,-R.
 OTO = -o oauth-twitter.so
 
 OPKG = --pkg gee-1.0 --pkg libsoup-2.4
